@@ -1,0 +1,5 @@
+train: /content/drive/MyDrive/dataset/train/images
+val: /content/drive/MyDrive/dataset/valid/images
+
+nc: 3
+names: ['lays', 'oreo', 'pepsi']

@@ -18,7 +18,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   const searchParams = useSearchParams();
-  const redirectStartSession = searchParams.get('redirectStartSession');
+  const redirectStartSession =/*true*/  searchParams.get('redirectStartSession');
 
 
   const handleLogin = async () => {

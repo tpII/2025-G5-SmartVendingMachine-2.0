@@ -11,7 +11,7 @@ class Heladera(models.Model):
         return f"Heladera {self.id}"
 
 class Producto(models.Model):
-    product_id = models.PositiveIntegerField()
+    #product_id = models.PositiveIntegerField(primary_key=True)
     heladera = models.ForeignKey(Heladera, related_name='productos', on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
     foto = models.ImageField(upload_to='media/productos/', blank=True, null=True)
@@ -37,3 +37,6 @@ class ProductoCompra(models.Model):
 
     def __str__(self):
         return f"{self.cantidad} x {self.producto.nombre} en Sesion {self.sesion.id}"
+class DatosSensor(models.Model):
+    temperatura = models.DecimalField(max_digits=5,decimal_places=2)
+    humedad = models.DecimalField(max_digits=5, decimal_places=2)

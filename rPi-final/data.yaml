@@ -1,5 +1,2 @@
-# Classes
-names:
-  0: coca-cola
-  1: lays
-  2: oreo
+nc: 3
+names: ['lays', 'oreo', 'pepsi']

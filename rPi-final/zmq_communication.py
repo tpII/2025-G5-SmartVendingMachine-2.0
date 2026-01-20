@@ -4,7 +4,7 @@ def setup_communication():
     context = zmq.Context()
 
     sender = context.socket(zmq.PUSH)
-    sender.connect("tcp://192.168.1.47:5556")
+    sender.connect("tcp://100.64.170.33:5556")
 
     receiver = context.socket(zmq.PULL)
     receiver.bind("tcp://*:5555")

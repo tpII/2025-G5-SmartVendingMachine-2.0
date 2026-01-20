@@ -25,9 +25,12 @@ interface FoodItem {
 export default function SmartFridgeEcommerce() {
   const [activeTab, setActiveTab] = useState("browse");
   const [foodItems, setFoodItems] = useState([]);
-
+  const [sensor, setSensor] = useState({
+    temperatura: '',
+    humedad: ''
+  })
   const searchParams = useSearchParams();
-  const redirectStartSession = searchParams.get('redirectStartSession');
+  const [redirectStartSession,setRedirectStartSession] = useState(false)//searchParams.get('redirectStartSession');
 
   const checkUserCard = async () => {
     try {
@@ -84,7 +87,34 @@ export default function SmartFridgeEcommerce() {
       console.error("Error en la peticion", error);
     }
   };
-
+  const obtenerDatosSensor = async () => {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}market/fridge/sensar/`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${Cookies.get("authToken")}`, // Usa el token guardado en cookies
+          "Content-Type": "application/json",
+        },
+      }
+    )
+    const data = await response.json();
+    setSensor({
+      ...sensor,
+      temperatura: data.Temperatura,
+      humedad: data.humedad
+    })
+  }
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      obtenerDatosSensor();
+      console.log("me estoy ejecutando ")
+    },1000*60)
+    return () => {
+      console.log("Intervalo limpiado")
+      clearInterval(intervalo);
+    }
+  },[])
   useEffect(() => {
     downloadProducts();
     checkUserCard();
@@ -122,28 +152,38 @@ export default function SmartFridgeEcommerce() {
               Logout
             </Button>
           </div>
+          <div className="flex flex-col">
+            <span>Temperatura: {sensor.temperatura} C </span>
+            <span> Humedad: {sensor.humedad} %</span>
+          </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsContent value="browse">
+              <div className="flex flex-col items-center justify-center">
+                <Button onClick={()=>{setRedirectStartSession(!redirectStartSession)
+                  window.location.href="/qr-scan/1"
+                }}>Iniciar compra</Button>
+              </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-              {foodItems.map((item: any) => (
-                <Card key={item.name}>
-                  <CardHeader>
-                    <CardTitle>{item.name}</CardTitle>
-                    <CardDescription>${item.price.toFixed(2)}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-40 object-cover rounded-md"
-                    />
-                  </CardContent>
-                </Card>
-              ))}
+              {foodItems.map((item: any) => ( 
+                <Card 
+                  key={item.name}> 
+                <CardHeader> 
+                    <CardTitle>{item.name}</CardTitle> 
+                    <CardDescription>${item.price.toFixed(2)}</CardDescription> 
+                </CardHeader> 
+                <CardContent> 
+                  <img 
+                   src={item.image} 
+                   alt={item.name} 
+                   className="w-full h-40 object-cover rounded-md" 
+                  /> 
+                </CardContent> 
+              </Card>
+               ))}
             </div>
           </TabsContent>
           <TabsContent value="qr-scanner">

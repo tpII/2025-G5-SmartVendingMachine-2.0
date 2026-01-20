@@ -45,7 +45,7 @@ def main():
     print("Inicializando el sistema...")
     setup()
     detection_model = model_setup(
-        onnx_model="best.onnx", 
+        onnx_model="nuevobestsm_ir11.onnx", 
         confidence_thres=0.5, 
         iou_thres=0.5, 
         print_thres=0.1
@@ -53,8 +53,8 @@ def main():
     sockets = setup_communication()
     print("Sistema inicializado correctamente.")
 
-    detection_counts_1 = {"coca-cola": 0, "lays": 0, "oreo": 0}
-    detection_counts_2 = {"coca-cola": 0, "lays": 0, "oreo": 0}
+    detection_counts_1 = {"pepsi": 0, "lays": 0, "oreo": 0}
+    detection_counts_2 = {"pepsi": 0, "lays": 0, "oreo": 0}
 
     print("Entrando en modo de escucha.")
 

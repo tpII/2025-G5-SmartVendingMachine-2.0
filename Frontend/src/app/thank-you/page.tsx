@@ -38,7 +38,7 @@ interface ProductsResponse {
 
 const productNameMapping: Record<string, string> = {
   "oreo": "Oreo",
-  "coca-cola": "Coca-Cola Original",
+  "pepsi": "Pepsi",
   "lays": "Lay's",
 };
 

@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework import permissions
 from .utils.ZMQconection import ZMQConnection, ZMQClient
 from .utils.message_codec import MessageCodec
-
+import json
 # Instancia de ZMQConnection
 zmq_client = ZMQClient()
 
@@ -82,7 +82,12 @@ class ProductListView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        productos = Producto.objects.filter(heladera=heladera)
+        # SOLO productos con stock > 0
+        productos = Producto.objects.filter(
+            heladera=heladera,
+            cantidad__gt=0
+        )
+
         productos_data = [
             {
                 "name": producto.nombre,
@@ -124,7 +129,6 @@ class EndSessionView(APIView):
             for name, cantidad_retirada in products.items():
                 # Buscar el producto por su nombre y asociarlo a la heladera
                 producto = Producto.objects.filter(nombre=name, heladera=1).first()
-                
                 if not producto:
                     return Response(
                         {"error": f"Producto '{name}' no encontrado en esta heladera."},
@@ -139,6 +143,8 @@ class EndSessionView(APIView):
                     }
                     print(name)
                     print(productos_info[name])
+                    producto.cantidad = producto.cantidad - cantidad_retirada
+                    Producto.save(producto)
         except Exception as e:
             return Response({"error": f"Error procesando productos: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -155,4 +161,18 @@ class EndSessionView(APIView):
                 }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-        
+class PedirDatos(APIView):
+    def get(self,request):
+        zmq_client.send_message("sensar")
+        data = zmq_client.wait_for_message()
+        print(f"Respuesta recibida: {data}")
+        data = json.loads(data)
+        #context.term()
+        objeto = DatosSensor(temperatura=data["Temperatura"],humedad=data["humedad"])
+        objeto.save()
+        return Response(data=data, status=status.HTTP_200_OK,
+                        headers={
+                            "Access-Control-Allow-Origin":"*",
+                            "Access-Control-Allow-Methods": "GET, POST",
+                            "Access-Control-Allow-Headers": "Content-Type"
+                        })
